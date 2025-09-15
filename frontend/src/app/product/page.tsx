@@ -1,25 +1,59 @@
-import { useParams } from 'next/navigation';
+import Image from "next/image";
 
-export const products = [
-  { id: 1, name: 'Sneakers', price: 120, image: '/products/sneakers.jpg', description: 'Comfortable sports sneakers' },
-  { id: 2, name: 'Backpack', price: 80, image: '/products/backpack.jpg', description: 'Durable travel backpack' },
-  { id: 3, name: 'Watch', price: 200, image: '/products/watch.jpg', description: 'Stylish wrist watch' },
-  { id: 4, name: 'Headphones', price: 150, image: '/products/headphones.jpg', description: 'Noise-cancelling headphones' },
-];
-
-export default function ProductDetail() {
-  const { id } = useParams();
-  const product = products.find(p => p.id === Number(id));
-
-  if (!product) return <p>Product not found</p>;
+export default function ProductPage() {
+  const products = [
+    {
+      id: 1,
+      name: "Elegant Red Dress",
+      image: "https://source.unsplash.com/400x300/?red-dress,fashion",
+      price: "$120",
+    },
+    {
+      id: 2,
+      name: "Classic Black Outfit",
+      image: "https://source.unsplash.com/400x300/?black-dress,fashion",
+      price: "$150",
+    },
+    {
+      id: 3,
+      name: "Casual Summer Look",
+      image: "https://source.unsplash.com/400x300/?summer-dress,fashion",
+      price: "$90",
+    },
+    {
+      id: 4,
+      name: "Modern Streetwear",
+      image: "https://source.unsplash.com/400x300/?streetwear,fashion",
+      price: "$110",
+    },
+  ];
 
   return (
-    <div className="product-detail">
-      <h2>{product.name}</h2>
-      <img src={product.image} alt={product.name} />  
-      <p>{product.description}</p>
-      <p>Price: ${product.price}</p>
-      <button className="btn">Add to Cart</button>
-    </div>
+    <main className="container my-5">
+      <div className="row g-4">
+        {products.map((product) => (
+          <div key={product.id} className="col-md-4 mb-4 g-5">
+            <div className="card h-100 shadow-sm position-relative">
+
+              <div className="overflow-hidden" style={{ height: '300px' }}>
+                <img
+                  src={product.image}
+                  className="card-img-top h-100 w-100"
+                  style={{ objectFit: 'contain' }}
+                  alt={product.name}
+                />
+              </div>
+              <div className="card-body text-center d-flex flex-column justify-content-between">
+                <h5 className="card-title text-start">{product.name}</h5>
+                <p className="card-text text-start">{product.price}</p>
+                <button className="btn bg-black text-white mt-auto">Add to Cart</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </main>
+
   );
 }
+

@@ -6,11 +6,14 @@ export class Order {
   id: number;
 
   @Column()
-  productId: number;
-
-  @Column()
   customerId: number;
 
-  @Column()
-  quantity: number;
+  @Column('json')
+  items: any; // array of product items
+
+  @Column('decimal')
+  total: number;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
 }

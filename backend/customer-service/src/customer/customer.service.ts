@@ -18,9 +18,7 @@ export class CustomerService {
       options: {
         urls: ['amqp://localhost:5672'],
         queue: 'customer_queue',
-        queueOptions: {
-          durable: false,
-        },
+        queueOptions: { durable: true }, // Durable for production
       },
     });
   }
@@ -40,7 +38,11 @@ export class CustomerService {
   }
 
   async findOne(id: number): Promise<Customer | null> {
-  return this.customerRepo.findOneBy({ id });
+    return this.customerRepo.findOneBy({ id });
+  }
+
+  async findByEmail(email: string): Promise<Customer | null> {
+  return this.customerRepo.findOneBy({ email });
 }
 
 }

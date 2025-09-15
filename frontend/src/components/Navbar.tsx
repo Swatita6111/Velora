@@ -3,7 +3,7 @@ import { FaShoppingCart } from 'react-icons/fa';
 
 export default function Navbar() {
   return (
-    <nav className="navbar">
+    <nav className="navbar px-5">
       <div className="logo">
         <Link href="/">Velora</Link>
       </div>
