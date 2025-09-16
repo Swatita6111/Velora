@@ -1,51 +1,49 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function ProductPage() {
-  const products = [
-    {
-      id: 1,
-      name: "Elegant Red Dress",
-      image: "https://source.unsplash.com/400x300/?red-dress,fashion",
-      price: "$120",
-    },
-    {
-      id: 2,
-      name: "Classic Black Outfit",
-      image: "https://source.unsplash.com/400x300/?black-dress,fashion",
-      price: "$150",
-    },
-    {
-      id: 3,
-      name: "Casual Summer Look",
-      image: "https://source.unsplash.com/400x300/?summer-dress,fashion",
-      price: "$90",
-    },
-    {
-      id: 4,
-      name: "Modern Streetwear",
-      image: "https://source.unsplash.com/400x300/?streetwear,fashion",
-      price: "$110",
-    },
-  ];
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const res = await axios.get("http://localhost:3002/products");
+        setProducts(res.data);
+      } catch (err) {
+        console.error("Failed to fetch products", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
+
+  if (loading) return <p>Loading products...</p>;
+
+  
   return (
     <main className="container my-5">
       <div className="row g-4">
         {products.map((product) => (
-          <div key={product.id} className="col-md-4 mb-4 g-5">
+          <div key={product.id} className="col-md-3 mb-4 g-5">
             <div className="card h-100 shadow-sm position-relative">
-
-              <div className="overflow-hidden" style={{ height: '300px' }}>
+              <div className="overflow-hidden" style={{ height: '250px' }}>
                 <img
                   src={product.image}
-                  className="card-img-top h-100 w-100"
+                  className="card-img-top h-70 w-70"
                   style={{ objectFit: 'contain' }}
                   alt={product.name}
                 />
               </div>
               <div className="card-body text-center d-flex flex-column justify-content-between">
                 <h5 className="card-title text-start">{product.name}</h5>
-                <p className="card-text text-start">{product.price}</p>
+                <p className="text-muted text-start small">
+                  Stylish and comfortable — perfect for daily wear.
+                </p>
+                <p className="card-text text-start">${product.price}</p>
                 <button className="btn bg-black text-white mt-auto">Add to Cart</button>
               </div>
             </div>
@@ -53,7 +51,5 @@ export default function ProductPage() {
         ))}
       </div>
     </main>
-
   );
 }
-

@@ -24,6 +24,12 @@ export class ProductService {
 
   async createProduct(data: Partial<Product>): Promise<Product> {
     const product = this.productRepo.create(data);
+
+    // ensure full URL for image if provided
+    if (product.image && !product.image.startsWith('http')) {
+      product.image = `http://localhost:3002/uploads/${product.image}`;
+    }
+
     await this.productRepo.save(product);
 
     // Publish event to RabbitMQ
@@ -32,11 +38,25 @@ export class ProductService {
     return product;
   }
 
-  async findAll(): Promise<Product[]> {
-    return this.productRepo.find();
-  }
 
-  async findOne(id: number): Promise<Product | null> {
-    return this.productRepo.findOneBy({ id });
+  async findAll(): Promise<Product[]> {
+  const products = await this.productRepo.find();
+  return products.map(p => ({
+    ...p,
+    image: p.image && !p.image.startsWith('http')
+      ? `http://localhost:3002/uploads/${p.image}`
+      : p.image,
+  }));
+}
+
+async findOne(id: number): Promise<Product | null> {
+  const product = await this.productRepo.findOneBy({ id });
+  if (!product) return null;
+
+  if (product.image && !product.image.startsWith('http')) {
+    product.image = `http://localhost:3002/uploads/${product.image}`;
   }
+  return product;
+}
+
 }
