@@ -3,6 +3,8 @@
 ## Clone the Repository
 git clone https://github.com/Swatita6111/Velora.git
 cd Velora
+git fetch
+git checkout development
 
 ## Setup PostgreSQL Databases
 
