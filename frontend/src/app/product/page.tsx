@@ -21,20 +21,31 @@ export default function ProductPage() {
     fetchProducts();
   }, []);
 
+  const handleAddToCart = (productId: number) => {
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const existing = cart.find((c: any) => c.productId === productId);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cart.push({ productId, quantity: 1 });
+    }
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert("Product added to cart!");
+  };
+
   if (loading) return <p>Loading products...</p>;
 
-  
   return (
     <main className="container my-5">
       <div className="row g-4">
         {products.map((product) => (
           <div key={product.id} className="col-md-3 mb-4 g-5">
             <div className="card h-100 shadow-sm position-relative">
-              <div className="overflow-hidden" style={{ height: '250px' }}>
+              <div className="overflow-hidden" style={{ height: "250px" }}>
                 <img
                   src={product.image}
                   className="card-img-top h-70 w-70"
-                  style={{ objectFit: 'contain' }}
+                  style={{ objectFit: "contain" }}
                   alt={product.name}
                 />
               </div>
@@ -44,7 +55,12 @@ export default function ProductPage() {
                   Stylish and comfortable — perfect for daily wear.
                 </p>
                 <p className="card-text text-start">${product.price}</p>
-                <button className="btn bg-black text-white mt-auto">Add to Cart</button>
+                <button
+                  className="btn bg-black text-white mt-auto"
+                  onClick={() => handleAddToCart(product.id)}
+                >
+                  Add to Cart
+                </button>
               </div>
             </div>
           </div>

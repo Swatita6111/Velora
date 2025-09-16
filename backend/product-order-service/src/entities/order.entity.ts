@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Product } from './product.entity';
 
 @Entity()
 export class Order {
@@ -8,12 +9,16 @@ export class Order {
   @Column()
   customerId: number;
 
-  @Column('json')
-  items: any; // array of product items
+  @ManyToOne(() => Product)
+  @JoinColumn({ name: 'productId' })
+  product: Product;
 
-  @Column('decimal')
-  total: number;
+  @Column()
+  productId: number;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+  @Column()
+  quantity: number;
+
+  @Column({ default: 'confirmed' })
+  status: string; // pending, confirmed, shipped
 }

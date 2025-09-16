@@ -5,6 +5,11 @@ import { Transport, ClientProxyFactory, ClientProxy } from '@nestjs/microservice
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: 'http://localhost:3003', // frontend origin
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
   // RabbitMQ client for Customer-Service
   const customerClient: ClientProxy = ClientProxyFactory.create({
     transport: Transport.RMQ,
