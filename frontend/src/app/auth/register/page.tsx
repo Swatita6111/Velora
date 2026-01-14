@@ -4,125 +4,115 @@ import Link from "next/link";
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+import '../auth.css';
 
 export default function Register() {
   const router = useRouter();
-
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+  });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const handleRegister = async () => {
     setLoading(true);
     setError("");
 
     try {
-      const res = await axios.post("http://localhost:3001/customers", {
-        name,
-        email,
-        phone,
-        password,
+      await axios.post("http://localhost:3001/customers", form);
+
+      // SweetAlert success
+      await Swal.fire({
+        icon: "success",
+        title: "Account Created",
+        text: "Your account has been created successfully! You can now login.",
+        timer: 2500,
+        showConfirmButton: false,
       });
 
-      alert("Registration successful! You can now login.");
       router.push("/auth/login");
     } catch (err: any) {
-      console.error(err);
-      setError(err.response?.data?.message || "Registration failed. Please try again.");
+      // SweetAlert error
+      Swal.fire({
+        icon: "error",
+        title: "Registration Failed",
+        text: err.response?.data?.message || "Please try again",
+      });
+
+      setError(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div
-      className="d-flex justify-content-center align-items-center vh-100"
-      style={{ backgroundColor: "#f0f0f0" }}
-    >
-      <div className="p-5 shadow-md bg-white" style={{ width: "450px", maxWidth: "90%" }}>
-        <h2 className="text-black auth-title">Register</h2>
+    <div className="auth-bg d-flex align-items-center">
+      <div className="container">
+        <div className="row justify-content-center align-items-center">
 
-        <div className="auth-message mb-4">
-          Fill out the form below to create your account
+          <div className="col-md-6 d-none d-md-block brand-panel">
+            <h1>Join Velora</h1>
+            <p className="lead">
+              Discover products you’ll love
+            </p>
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/1170/1170576.png"
+              className="img-fluid mt-4"
+              width="250"
+            />
+          </div>
+
+          <div className="col-md-4">
+            <div className="auth-card p-4 mb-5">
+              <h3 className="fw-bold mb-1">Create Account</h3>
+              <p className="text-muted mb-4">
+                Join Velora and start shopping smarter today
+              </p>
+
+              {error && (
+                <div className="alert alert-danger py-2">
+                  {error}
+                </div>
+              )}
+
+              {["name", "email", "phone", "password"].map((field) => (
+                <div className="mb-3" key={field}>
+                  <label className="form-label text-capitalize">
+                    {field}
+                  </label>
+                  <input
+                    type={field === "password" ? "password" : "text"}
+                    className="form-control"
+                    placeholder={`Enter ${field}`}
+                    value={(form as any)[field]}
+                    onChange={(e) =>
+                      setForm({ ...form, [field]: e.target.value })
+                    }
+                  />
+                </div>
+              ))}
+
+              <button
+                className="btn auth-btn text-white w-100 py-2"
+                onClick={handleRegister}
+                disabled={loading}
+              >
+                {loading ? "Creating account..." : "Register"}
+              </button>
+
+              <p className="text-center mt-3 mb-0">
+                Already have an account?{" "}
+                <Link href="/auth/login" className="text-decoration-none">
+                  Login
+                </Link>
+              </p>
+            </div>
+          </div>
+
         </div>
-
-        {error && <p className="text-danger mb-3">{error}</p>}
-
-        {/* Name */}
-        <div className="mb-3">
-          <label htmlFor="name" className="form-label">Name</label>
-          <input
-            type="text"
-            id="name"
-            className="form-control"
-            placeholder="Enter your name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-
-        {/* Email */}
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">Email</label>
-          <input
-            type="email"
-            id="email"
-            className="form-control"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-
-        {/* Phone Number */}
-        <div className="mb-3">
-          <label htmlFor="phone" className="form-label">Phone Number</label>
-          <input
-            type="tel"
-            id="phone"
-            className="form-control"
-            placeholder="Enter your phone number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
-        </div>
-
-        {/* Password */}
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">Password</label>
-          <input
-            type="password"
-            id="password"
-            className="form-control"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-
-        {/* Register Button */}
-        <button
-          className="btn bg-black text-white w-100"
-          onClick={handleRegister}
-          disabled={loading}
-        >
-          {loading ? "Registering..." : "Register"}
-        </button>
-
-        {/* Link to login */}
-        <p className="mt-3 text-grey text-center">
-          Already have an account?{" "}
-          <Link
-            href="/auth/login"
-            className="text-decoration-none"
-            style={{ color: "#667eea" }}
-          >
-            Login
-          </Link>
-        </p>
       </div>
     </div>
   );

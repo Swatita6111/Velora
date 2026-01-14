@@ -3,14 +3,21 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Customer } from '../entities/customer.entity';
 import { ClientProxyFactory, Transport, ClientProxy } from '@nestjs/microservices';
+import { CreateCustomerDto } from './dto/create-customer.dto';
+import * as bcrypt from 'bcrypt';
+import { Inject } from '@nestjs/common';
 
 @Injectable()
 export class CustomerService {
-  private client: ClientProxy;
+  // private client: ClientProxy;
+
+
 
   constructor(
     @InjectRepository(Customer)
     private customerRepo: Repository<Customer>,
+    @Inject('RABBITMQ_CLIENT')
+    private client: ClientProxy,
   ) {
     // RabbitMQ Client
     this.client = ClientProxyFactory.create({
@@ -23,12 +30,21 @@ export class CustomerService {
     });
   }
 
-  async createCustomer(data: Partial<Customer>): Promise<Customer> {
-    const customer = this.customerRepo.create(data);
+  async createCustomer(data: CreateCustomerDto): Promise<Customer> {
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    const customer = this.customerRepo.create({
+      ...data,
+      password: hashedPassword,
+    });
+
     await this.customerRepo.save(customer);
 
-    // Publish event to RabbitMQ
-    this.client.emit('customer_created', customer);
+    this.client.emit('customer.created', {
+      id: customer.id,
+      email: customer.email,
+      name: customer.name,
+    });
 
     return customer;
   }
@@ -42,7 +58,7 @@ export class CustomerService {
   }
 
   async findByEmail(email: string): Promise<Customer | null> {
-  return this.customerRepo.findOneBy({ email });
-}
+    return this.customerRepo.findOneBy({ email });
+  }
 
 }

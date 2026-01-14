@@ -18,11 +18,13 @@ import { OrderModule } from './order/order.module';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
         autoLoadEntities: true,
-        synchronize: true, // disable in production
+        synchronize: false, 
+        migrations: ['dist/migrations/*.js'], // compiled migration files
+        cli: { migrationsDir: 'src/migrations' },
       }),
     }),
     ProductModule,
     OrderModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }

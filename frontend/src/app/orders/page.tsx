@@ -5,13 +5,16 @@ import axios from "axios";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
-  const customerId = 101; 
-
+  // const customerId = 101; 
   useEffect(() => {
+    const customerId = localStorage.getItem("customerId"); // now works
+    if (!customerId) return;
+
     async function fetchOrders() {
       const res = await axios.get(`http://localhost:3002/orders/customer/${customerId}`);
       setOrders(res.data);
     }
+
     fetchOrders();
   }, []);
 

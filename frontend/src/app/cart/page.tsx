@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export default function CartPage() {
   const [cartItems, setCartItems] = useState<any[]>([]);
@@ -17,10 +18,11 @@ export default function CartPage() {
           return;
         }
 
-        // Use Promise.all instead of for..of + await
         const productsData = await Promise.all(
           cart.map(async (item: any) => {
-            const res = await axios.get(`http://localhost:3002/orders/cart/${item.productId}`);
+            const res = await axios.get(
+              `http://localhost:3002/orders/cart/${item.productId}`
+            );
             return { ...res.data, quantity: item.quantity };
           })
         );
@@ -36,10 +38,13 @@ export default function CartPage() {
     fetchCartProducts();
   }, []);
 
-  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   const handleCheckout = async () => {
-    const customerId = 101; // example customer id
+    const customerId = localStorage.getItem("customerId") || 101; // fallback
     try {
       for (const item of cartItems) {
         await axios.post("http://localhost:3002/orders", {
@@ -48,51 +53,123 @@ export default function CartPage() {
           quantity: item.quantity,
         });
       }
-      alert("Order placed successfully!");
+
+      // SweetAlert success
+      await Swal.fire({
+        icon: "success",
+        title: "Order Placed",
+        text: "Your order has been placed successfully!",
+        timer: 2500,
+        showConfirmButton: false,
+      });
+
       localStorage.removeItem("cart");
       setCartItems([]);
     } catch (err) {
       console.error(err);
-      alert("Failed to place order");
+      Swal.fire({
+        icon: "error",
+        title: "Order Failed",
+        text: "Something went wrong, please try again.",
+      });
     }
   };
 
-  if (loading) return <p className="text-center my-5">Loading cart...</p>;
-  if (cartItems.length === 0) return <p className="text-center my-5">Cart is empty</p>;
+  if (loading)
+    return <p className="text-center my-5 fs-5">Loading cart...</p>;
+  if (cartItems.length === 0)
+    return <p className="text-center my-5 fs-5">Your cart is empty</p>;
 
   return (
     <div className="container my-5">
-      <h2 className="mb-4">Shopping Cart</h2>
+      <h2 className="mb-4 text-center">Shopping Cart</h2>
 
-      <div className="row g-3">
-        {cartItems.map((item) => (
-          <div key={item.id} className="col-12 d-flex align-items-center border-bottom py-2">
-            <img src={item.image} width={80} className="me-3" />
-            <div>
-              <h5>{item.name}</h5>
-              <p>${item.price} x {item.quantity}</p>
+      <div className="row g-4">
+        {cartItems.map((item, index) => (
+          <div key={item.id} className="col-md-6 col-lg-4 position-relative">
+            <div className="card shadow-sm h-100 border-0">
+
+              {/* Remove Button */}
+              <button
+                className="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
+                style={{
+                  zIndex: 10,
+                  width: "28px",
+                  height: "28px",
+                  padding: "0",
+                  fontSize: "16px",
+                  lineHeight: "28px",
+                  borderRadius: "20%",
+                }}
+                onClick={() => {
+                  const updatedCart = cartItems.filter((_, i) => i !== index);
+                  setCartItems(updatedCart);
+                  localStorage.setItem(
+                    "cart",
+                    JSON.stringify(updatedCart.map((c) => ({ productId: c.id, quantity: c.quantity })))
+                  );
+                  Swal.fire({
+                    icon: "success",
+                    title: "Removed",
+                    text: `${item.name} has been removed from the cart.`,
+                    timer: 1200,
+                    showConfirmButton: false,
+                  });
+                }}
+              >
+                &times;
+              </button>
+
+              <div
+                className="position-relative"
+                style={{ height: "250px", overflow: "hidden" }}
+              >
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="card-img-top h-100 w-100"
+                  style={{ objectFit: "cover" }}
+                />
+                <div className="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-25 d-flex justify-content-center align-items-center">
+                  <h5 className="text-white text-center">{item.name}</h5>
+                </div>
+              </div>
+
+              <div className="card-body d-flex flex-column justify-content-between">
+                <p className="text-muted mb-1">
+                  Price: ${item.price} x {item.quantity}
+                </p>
+                <p className="fw-bold mb-3">
+                  Subtotal: ${(item.price * item.quantity).toFixed(2)}
+                </p>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="d-flex flex-column align-items-end mt-4 p-3 border-top">
-        <h4 className="mb-2">Total: ${total.toFixed(2)}</h4>
+      <div className="d-flex flex-column align-items-end mt-4 gap-2">
+        <h4 className="mb-1">Total: ${total.toFixed(2)}</h4>
         <button
-          className="btn bg-black text-white w-auto px-3"
+          className="btn btn-success"
+          style={{ padding: "0.65rem 0.75rem", fontSize: "1rem", width: "120px" }}
           onClick={() => {
             const customerId = localStorage.getItem("customerId");
             if (!customerId) {
-              alert("Please login to proceed to checkout.");
+              Swal.fire({
+                icon: "warning",
+                title: "Login Required",
+                text: "Please login to proceed to checkout.",
+              });
               return;
             }
             handleCheckout();
           }}
         >
-          Proceed to Checkout
+          Checkout
         </button>
-
       </div>
     </div>
+
   );
 }

@@ -1,0 +1,44 @@
+.auth-bg {
+  min-height: 100vh;
+  background: linear-gradient(
+      rgba(0, 0, 0, 0.55),
+      rgba(0, 0, 0, 0.55)
+    ),
+    url("https://images.unsplash.com/photo-1512436991641-6745cdb1723f");
+  background-size: cover;
+  background-position: center;
+}
+
+.auth-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 14px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.brand-panel {
+  color: white;
+}
+
+.brand-panel h1 {
+  font-weight: 700;
+}
+
+.auth-btn {
+  background: #0f766e;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.auth-btn:hover {
+  background: #0d6156; /* slightly darker green for hover */
+  color: #fff; /* keep text white */
+  transform: translateY(-2px); /* optional slight lift */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15); /* optional shadow */
+}
+
+

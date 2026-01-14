@@ -2,10 +2,16 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Transport, ClientProxyFactory, ClientProxy } from '@nestjs/microservices';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { ValidationPipe } from '@nestjs/common';
 import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+   app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true, // <-- this converts strings to numbers automatically
+    }),
+  );
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
     prefix: '/uploads/', // access like http://localhost:3000/uploads/filename.jpg
   });

@@ -10,7 +10,7 @@ export class OrdersService {
   constructor(
     @InjectRepository(Order) private orderRepo: Repository<Order>,
     @InjectRepository(Product) private productRepo: Repository<Product>,
-    @Inject('RABBITMQ_SERVICE') // ✅ match the name from module
+    @Inject('RABBITMQ_SERVICE') 
     private readonly rabbitClient: ClientProxy,
   ) { }
 
